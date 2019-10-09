@@ -41,6 +41,9 @@ namespace StatSearchEngineConsoleClient.DummyClasses
 
         public IEnumerable<ISearchable<string>> Extend()
         {
+            //TODO: Optimizar el proceso de creación de hijitos
+            //TODO: revisar si es posible evitar crear hijos cuando 
+            //su puntaje inicial es mayor al puntaje del candidato encontrado.
             var childs = new List<ISearchable<string>>();
             for (int i = _pkmnList.Count - 1; i >= 1; i--)
             {
@@ -57,6 +60,11 @@ namespace StatSearchEngineConsoleClient.DummyClasses
                 childs.Add(new DummyPkmnCollection(nthClone, Score + 1, Id));
             }
             return childs;
+        }
+
+        public int CompareTo(ISearchable<string> other)
+        {
+            return Score.CompareTo(other.Score);
         }
     }
 }

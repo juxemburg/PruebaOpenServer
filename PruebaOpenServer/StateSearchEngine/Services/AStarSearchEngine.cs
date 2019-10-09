@@ -1,8 +1,8 @@
 ﻿using StateSearchEngine.Interfaces;
+using StateSearchEngine.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 
 namespace StateSearchEngine.Services
 {
@@ -21,10 +21,12 @@ namespace StateSearchEngine.Services
         private readonly Func<ISearchable<T>, double> _heuristicFn;
 
         private ISearchable<T> _currentCandidate;
-        private int _currentIdx;
+        private readonly bool _returnFirstMatch;
 
         private Dictionary<T, ISearchable<T>> _discartedQueue;
-        private List<ISearchable<T>> _extendedQueue;
+        private PriorityQueue<ISearchable<T>> _extendQueue;
+
+        private ISearchable<T> _resultCandidate;
 
         public double ElapsedSearchTime { get; private set; } = 0;
         public double ExtensionsCount { get; private set; } = 0;
@@ -39,13 +41,15 @@ namespace StateSearchEngine.Services
         /// Estado final de la búsqueda
         /// </param>
         public AStarSearchEngine(ISearchable<T> initialState, ISearchable<T> goalState,
-            Func<ISearchable<T>, double> heuristicFn)
+            Func<ISearchable<T>, double> heuristicFn, bool returnFirstMatch = false)
         {
+            _returnFirstMatch = returnFirstMatch;
+
             _initialState = initialState;
             _goalState = goalState;
             _heuristicFn = heuristicFn;
 
-            _extendedQueue = new List<ISearchable<T>>();
+            _extendQueue = new PriorityQueue<ISearchable<T>>();
             _discartedQueue = new Dictionary<T, ISearchable<T>>();
         }
 
@@ -60,9 +64,7 @@ namespace StateSearchEngine.Services
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
-            _currentCandidate = _initialState;
-            _currentIdx = 0;
-            _extendedQueue.Add(_currentCandidate);
+            _extendQueue.Enqueue(_initialState);
 
             var resutlt = shortestPathSearch();
 
@@ -73,27 +75,34 @@ namespace StateSearchEngine.Services
 
         private Queue<ISearchable<T>> shortestPathSearch()
         {
-            while (_extendedQueue.Count > 0)
+            while (_extendQueue.Count > 0)
             {
-                _currentCandidate = getNextCandidate();
-                extendState(_currentCandidate, _currentIdx);
+                _currentCandidate = _extendQueue.Dequeue();
 
-                // Encontró el candidato más corto
-                if (_goalState.Id.Equals(_currentCandidate.Id))
+                if (!_discartedQueue.ContainsKey(_currentCandidate.Id))
                 {
-                    return shortestPathQueue(_currentCandidate);
+                    extendState(_currentCandidate);
+
+                    if (_goalState.Id.Equals(_currentCandidate.Id) && 
+                        (_resultCandidate == null || _resultCandidate.Score > _currentCandidate.Score))
+                    {
+                        _resultCandidate = _currentCandidate;
+                        if(_returnFirstMatch)
+                        {
+                            return shortestPathQueue(_resultCandidate);
+                        }
+                    }
                 }
             };
 
             // Si no encontró match y no existen elementos en cola para ser extendidos
             // no era posible encontrar un estado adecuado.
-            return null;
+            return shortestPathQueue(_resultCandidate);
         }
 
-        private void extendState(ISearchable<T> state, int stateIndex)
+        private void extendState(ISearchable<T> state)
         {
             ExtensionsCount++;
-            _extendedQueue.RemoveAt(stateIndex);
             if (!_discartedQueue.ContainsKey(state.Id))
             {
                 _discartedQueue.Add(state.Id, state);
@@ -101,38 +110,14 @@ namespace StateSearchEngine.Services
 
             foreach (var item in state.Extend())
             {
-                if (!_discartedQueue.ContainsKey(item.Id))
+                item.Score += _heuristicFn(item);
+                if(_resultCandidate == null || item.Score < _resultCandidate.Score)
                 {
-                    item.Score += _heuristicFn(item);
-                    _extendedQueue.Add(item);
+                    _extendQueue.Enqueue(item);
                 }
             }
         }
 
-        private ISearchable<T> getNextCandidate()
-        {
-            if (_extendedQueue.Count <= 0)
-            {
-                return null;
-            }
-
-
-            double minValue = double.MaxValue;
-
-            var idx = 0;
-            foreach (var item in _extendedQueue)
-            {
-                if (item.Score < minValue)
-                {
-                    minValue = item.Score;
-                    _currentCandidate = item;
-                    _currentIdx = idx;
-                }
-                idx++;
-            }
-
-            return _currentCandidate;
-        }
 
         private Queue<ISearchable<T>> shortestPathQueue(ISearchable<T> winnerState)
         {
