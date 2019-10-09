@@ -20,14 +20,23 @@ namespace StatSearchEngineConsoleClient.DummyClasses
         //<DexId, PkmnName, RemainingBattles>
         private readonly List<Tuple<int, string, int>> _pkmnList;
 
+        //<DexId, ListPosition>
+        public readonly Dictionary<int, int> PkmnPositions;
+
         public DummyPkmnCollection(List<Tuple<int, string, int>> pkmnList, double score, string parentId)
         {
             _pkmnList = pkmnList;
             Score = score;
             ParentId = parentId;
+            PkmnPositions = new Dictionary<int, int>();
 
-            Id = _pkmnList.Aggregate("", (acc, current) =>
-                string.IsNullOrWhiteSpace(acc) ? $"{current.Item1}" : $"{acc}-{current.Item1}");
+            var pos = 0;
+            foreach (var pkmn in _pkmnList)
+            {
+                Id = string.IsNullOrWhiteSpace(Id) ? $"${pkmn.Item1}" : $"{Id}-{pkmn.Item1}";
+                PkmnPositions.Add(pkmn.Item1, pos);
+                pos++;
+            }
         }
 
         public IEnumerable<ISearchable<string>> Extend()

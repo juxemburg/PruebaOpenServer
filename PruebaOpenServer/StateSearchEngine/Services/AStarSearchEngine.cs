@@ -18,6 +18,8 @@ namespace StateSearchEngine.Services
         private readonly ISearchable<T> _initialState;
         private readonly ISearchable<T> _goalState;
 
+        private readonly Func<ISearchable<T>, double> _heuristicFn;
+
         private ISearchable<T> _currentCandidate;
         private int _currentIdx;
 
@@ -25,6 +27,7 @@ namespace StateSearchEngine.Services
         private List<ISearchable<T>> _extendedQueue;
 
         public double ElapsedSearchTime { get; private set; } = 0;
+        public double ExtensionsCount { get; private set; } = 0;
 
         /// <summary>
         /// 
@@ -35,10 +38,12 @@ namespace StateSearchEngine.Services
         /// <param name="goalState">
         /// Estado final de la búsqueda
         /// </param>
-        public AStarSearchEngine(ISearchable<T> initialState, ISearchable<T> goalState)
+        public AStarSearchEngine(ISearchable<T> initialState, ISearchable<T> goalState,
+            Func<ISearchable<T>, double> heuristicFn)
         {
             _initialState = initialState;
             _goalState = goalState;
+            _heuristicFn = heuristicFn;
 
             _extendedQueue = new List<ISearchable<T>>();
             _discartedQueue = new Dictionary<T, ISearchable<T>>();
@@ -87,6 +92,7 @@ namespace StateSearchEngine.Services
 
         private void extendState(ISearchable<T> state, int stateIndex)
         {
+            ExtensionsCount++;
             _extendedQueue.RemoveAt(stateIndex);
             if (!_discartedQueue.ContainsKey(state.Id))
             {
@@ -97,6 +103,7 @@ namespace StateSearchEngine.Services
             {
                 if (!_discartedQueue.ContainsKey(item.Id))
                 {
+                    item.Score += _heuristicFn(item);
                     _extendedQueue.Add(item);
                 }
             }
@@ -109,7 +116,7 @@ namespace StateSearchEngine.Services
                 return null;
             }
 
-            
+
             double minValue = double.MaxValue;
 
             var idx = 0;
