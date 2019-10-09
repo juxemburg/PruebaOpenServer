@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
 namespace StateSearchEngine.Interfaces
 {
-    public interface ISearchable<T>
+    public interface ISearchable<T>: IComparable<ISearchable<T>>
     {
         T Id { get; set; }
 

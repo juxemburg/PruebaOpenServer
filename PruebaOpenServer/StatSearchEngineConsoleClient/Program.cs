@@ -75,6 +75,22 @@ namespace StatSearchEngineConsoleClient
                 new Tuple<int, string, int>(30, "E", 2)
             }, 0, "");
 
+            //var initialState = new DummyPkmnCollection(new List<Tuple<int, string, int>> {
+            //    new Tuple<int, string, int>(1, "Bullbasasur", 2),
+            //    new Tuple<int, string, int>(4, "Charmander", 2),
+            //    new Tuple<int, string, int>(7, "Squirtle", 2),
+            //    new Tuple<int, string, int>(10, "Caterpie", 2),
+            //    new Tuple<int, string, int>(16, "Pidgey", 2),
+            //}, 0, "");
+
+            //var goalState = new DummyPkmnCollection(new List<Tuple<int, string, int>> {
+            //    new Tuple<int, string, int>(7, "Squirtle", 2),
+            //    new Tuple<int, string, int>(1, "Bullbasasur", 2),
+            //    new Tuple<int, string, int>(4, "Charmander", 2),
+            //    new Tuple<int, string, int>(10, "Caterpie", 2),
+            //    new Tuple<int, string, int>(16, "Pidgey", 2),
+            //}, 0, "");
+
             var goalStatePkmDict = goalState.PkmnPositions;
 
             var searchEngine = new AStarSearchEngine<string>(initialState, goalState, (pkCollection) =>

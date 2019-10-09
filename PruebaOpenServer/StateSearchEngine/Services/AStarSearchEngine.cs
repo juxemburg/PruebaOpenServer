@@ -1,4 +1,5 @@
 ﻿using StateSearchEngine.Interfaces;
+using StateSearchEngine.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -20,11 +21,10 @@ namespace StateSearchEngine.Services
         private readonly Func<ISearchable<T>, double> _heuristicFn;
 
         private ISearchable<T> _currentCandidate;
-        private int _currentIdx;
-        private bool _returnFirstMatch;
+        private readonly bool _returnFirstMatch;
 
         private Dictionary<T, ISearchable<T>> _discartedQueue;
-        private List<ISearchable<T>> _extendQueue;
+        private PriorityQueue<ISearchable<T>> _extendQueue;
 
         private ISearchable<T> _resultCandidate;
 
@@ -49,7 +49,7 @@ namespace StateSearchEngine.Services
             _goalState = goalState;
             _heuristicFn = heuristicFn;
 
-            _extendQueue = new List<ISearchable<T>>();
+            _extendQueue = new PriorityQueue<ISearchable<T>>();
             _discartedQueue = new Dictionary<T, ISearchable<T>>();
         }
 
@@ -64,9 +64,7 @@ namespace StateSearchEngine.Services
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
-            _currentCandidate = _initialState;
-            _currentIdx = 0;
-            _extendQueue.Add(_currentCandidate);
+            _extendQueue.Enqueue(_initialState);
 
             var resutlt = shortestPathSearch();
 
@@ -79,11 +77,11 @@ namespace StateSearchEngine.Services
         {
             while (_extendQueue.Count > 0)
             {
-                _currentCandidate = getNextCandidate();
+                _currentCandidate = _extendQueue.Dequeue();
 
                 if (!_discartedQueue.ContainsKey(_currentCandidate.Id))
                 {
-                    extendState(_currentCandidate, _currentIdx);
+                    extendState(_currentCandidate);
 
                     if (_goalState.Id.Equals(_currentCandidate.Id) && 
                         (_resultCandidate == null || _resultCandidate.Score > _currentCandidate.Score))
@@ -95,10 +93,6 @@ namespace StateSearchEngine.Services
                         }
                     }
                 }
-                else
-                {
-                    _extendQueue.RemoveAt(_currentIdx);
-                }
             };
 
             // Si no encontró match y no existen elementos en cola para ser extendidos
@@ -106,10 +100,9 @@ namespace StateSearchEngine.Services
             return shortestPathQueue(_resultCandidate);
         }
 
-        private void extendState(ISearchable<T> state, int stateIndex)
+        private void extendState(ISearchable<T> state)
         {
             ExtensionsCount++;
-            _extendQueue.RemoveAt(stateIndex);
             if (!_discartedQueue.ContainsKey(state.Id))
             {
                 _discartedQueue.Add(state.Id, state);
@@ -120,35 +113,11 @@ namespace StateSearchEngine.Services
                 item.Score += _heuristicFn(item);
                 if(_resultCandidate == null || item.Score < _resultCandidate.Score)
                 {
-                    _extendQueue.Add(item);
+                    _extendQueue.Enqueue(item);
                 }
             }
         }
 
-        private ISearchable<T> getNextCandidate()
-        {
-            if (_extendQueue.Count <= 0)
-            {
-                return null;
-            }
-
-
-            double minValue = double.MaxValue;
-            var idx = 0;
-            foreach (var item in _extendQueue)
-            {
-                if (item.Score < minValue)
-                {
-                    minValue = item.Score;
-                    _currentCandidate = item;
-                    _currentIdx = idx;
-                }
-                idx++;
-            }
-
-
-            return _currentCandidate;
-        }
 
         private Queue<ISearchable<T>> shortestPathQueue(ISearchable<T> winnerState)
         {
