@@ -7,9 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StateSearchEngine", "StateS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StatSearchEngineConsoleClient", "StatSearchEngineConsoleClient\StatSearchEngineConsoleClient.csproj", "{7E7EF66B-E255-4CA3-B000-58B1462E0CF2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokeServices", "PokeServices\PokeServices.csproj", "{4AE93178-80FC-41A8-8244-BF72B42761A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PokeServices", "PokeServices\PokeServices.csproj", "{4AE93178-80FC-41A8-8244-BF72B42761A4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PokeApiNet", "PokeApiNet\PokeApiNet.csproj", "{422F7698-0394-4CB2-BD58-FC7AE938C7A2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokeApp", "PokeApp\PokeApp.csproj", "{C676DC57-653D-46FD-9760-62B9EC099259}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{422F7698-0394-4CB2-BD58-FC7AE938C7A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{422F7698-0394-4CB2-BD58-FC7AE938C7A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{422F7698-0394-4CB2-BD58-FC7AE938C7A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C676DC57-653D-46FD-9760-62B9EC099259}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C676DC57-653D-46FD-9760-62B9EC099259}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C676DC57-653D-46FD-9760-62B9EC099259}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C676DC57-653D-46FD-9760-62B9EC099259}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
