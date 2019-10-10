@@ -110,8 +110,8 @@ namespace StateSearchEngine.Services
 
             foreach (var item in state.Extend())
             {
-                item.Score += _heuristicFn(item);
-                if(_resultCandidate == null || item.Score < _resultCandidate.Score)
+                item.HeuristicValue = _heuristicFn(item);
+                if(_resultCandidate == null || item.Depth < _resultCandidate.Depth)
                 {
                     _extendQueue.Enqueue(item);
                 }

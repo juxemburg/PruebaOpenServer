@@ -5,15 +5,25 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using PokeServices.PokedexServices;
 
 namespace PokeApp
 {
     public class Program
     {
-        public static void Main(string[] args)
+        
+        public static async Task Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
+            IWebHost webHost = CreateWebHostBuilder(args).Build();
+
+            //Instantiate the service
+            var profilerService = webHost.Services.GetRequiredService<PokedexProfilerService>();
+            await profilerService.InitAsync();
+            
+            // Run the WebHost, and start accepting requests
+            await webHost.RunAsync();
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
