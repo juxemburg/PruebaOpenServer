@@ -29,7 +29,7 @@ namespace PokeServices.PokedexServices
         /// <param name="pkmnName">Nombre del pokémon</param>
         /// <returns>Código de la pokédex, en caso de que el pokémon no exista se retorna -1</returns>
         public int GetPokedexNumber(string pkmnName)
-            => _pokedexIndex.ContainsKey(pkmnName) ? _pokedexIndex[pkmnName] : -1;
+            => _pokedexIndex.ContainsKey(pkmnName.ToLower()) ? _pokedexIndex[pkmnName.ToLower()] : -1;
 
     }
 }

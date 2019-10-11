@@ -23,8 +23,8 @@ namespace StateSearchEngine.Services
         private ISearchable<T> _currentCandidate;
         private readonly bool _returnFirstMatch;
 
-        private Dictionary<T, ISearchable<T>> _discartedQueue;
-        private PriorityQueue<ISearchable<T>> _extendQueue;
+        private readonly Dictionary<T, ISearchable<T>> _discartedQueue;
+        private readonly PriorityQueue<ISearchable<T>> _extendQueue;
 
         private ISearchable<T> _resultCandidate;
 
@@ -46,8 +46,11 @@ namespace StateSearchEngine.Services
             _returnFirstMatch = returnFirstMatch;
 
             _initialState = initialState;
+            
             _goalState = goalState;
             _heuristicFn = heuristicFn;
+
+            _initialState.HeuristicValue = _heuristicFn(_initialState);
 
             _extendQueue = new PriorityQueue<ISearchable<T>>();
             _discartedQueue = new Dictionary<T, ISearchable<T>>();
@@ -111,7 +114,10 @@ namespace StateSearchEngine.Services
             foreach (var item in state.Extend())
             {
                 item.HeuristicValue = _heuristicFn(item);
-                if(_resultCandidate == null || item.Depth < _resultCandidate.Depth)
+                if(item.HeuristicValue >= 0 &&
+                    item.HeuristicValue < state.HeuristicValue &&
+                    (_resultCandidate == null || 
+                        item.Depth < _resultCandidate.Depth))
                 {
                     _extendQueue.Enqueue(item);
                 }

@@ -13,7 +13,7 @@ namespace StateSearchEngine.Interfaces
 
         public double Score { get { return Depth + HeuristicValue; } }
 
-        public double HeuristicValue { private get; set; } = 0;
+        public double HeuristicValue { get; set; } = 0;
 
         public double Depth { get; private set; }
 
