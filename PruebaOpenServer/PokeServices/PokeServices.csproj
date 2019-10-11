@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PokeApiNet\PokeApiNet.csproj" />
+    <ProjectReference Include="..\StateSearchEngine\StateSearchEngine.csproj" />
+  </ItemGroup>
+
+</Project>

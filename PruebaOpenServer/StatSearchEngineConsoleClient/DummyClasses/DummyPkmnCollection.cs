@@ -8,9 +8,6 @@ namespace StatSearchEngineConsoleClient.DummyClasses
 {
     public class DummyPkmnCollection : ISearchable<string>
     {
-        public string Id { get; set; }
-        public string ParentId { get; set; }
-        public double Score { get; set; }
 
         public bool Equals(string other)
         {
@@ -23,10 +20,10 @@ namespace StatSearchEngineConsoleClient.DummyClasses
         //<DexId, ListPosition>
         public readonly Dictionary<int, int> PkmnPositions;
 
-        public DummyPkmnCollection(List<Tuple<int, string, int>> pkmnList, double score, string parentId)
+        public DummyPkmnCollection(List<Tuple<int, string, int>> pkmnList, double depth, string parentId)
+            :base(depth)
         {
             _pkmnList = pkmnList;
-            Score = score;
             ParentId = parentId;
             PkmnPositions = new Dictionary<int, int>();
 
@@ -39,7 +36,7 @@ namespace StatSearchEngineConsoleClient.DummyClasses
             }
         }
 
-        public IEnumerable<ISearchable<string>> Extend()
+        public override IEnumerable<ISearchable<string>> Extend()
         {
             //TODO: Optimizar el proceso de creación de hijitos
             //TODO: revisar si es posible evitar crear hijos cuando 
@@ -62,9 +59,5 @@ namespace StatSearchEngineConsoleClient.DummyClasses
             return childs;
         }
 
-        public int CompareTo(ISearchable<string> other)
-        {
-            return Score.CompareTo(other.Score);
-        }
     }
 }

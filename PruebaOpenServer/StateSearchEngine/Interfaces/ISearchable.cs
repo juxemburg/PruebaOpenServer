@@ -5,15 +5,29 @@ using System.Text;
 
 namespace StateSearchEngine.Interfaces
 {
-    public interface ISearchable<T>: IComparable<ISearchable<T>>
+    public abstract class ISearchable<T> : IComparable<ISearchable<T>>
     {
-        T Id { get; set; }
+        public T Id { get; set; }
 
-        T ParentId { get; set; }
+        public T ParentId { get; set; }
 
-        double Score { get; set; }
+        public double Score { get { return Depth + HeuristicValue; } }
 
-        IEnumerable<ISearchable<T>> Extend();
+        public double HeuristicValue { get; set; } = 0;
+
+        public double Depth { get; private set; }
+
+        public ISearchable(double depth)
+        {
+            Depth = depth;
+        }
+
+        public abstract IEnumerable<ISearchable<T>> Extend();
+
+        public int CompareTo(ISearchable<T> other)
+        {
+            return Score.CompareTo(other.Score);
+        }
 
     }
 }
