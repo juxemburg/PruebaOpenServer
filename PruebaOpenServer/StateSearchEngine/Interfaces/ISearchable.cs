@@ -26,7 +26,7 @@ namespace StateSearchEngine.Interfaces
 
         public int CompareTo(ISearchable<T> other)
         {
-            return Score.CompareTo(other.Score);
+            return HeuristicValue.CompareTo(other.HeuristicValue);
         }
 
     }
