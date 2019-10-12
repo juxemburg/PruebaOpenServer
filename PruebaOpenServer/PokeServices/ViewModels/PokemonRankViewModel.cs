@@ -9,6 +9,8 @@ namespace PokeServices.ViewModels
 {
     public class PokemonRankViewModel : ISearchable<string>
     {
+        public string Battle { get; private set; } = "";
+
         public bool Equals(string other)
         {
             return Id.Equals(other);
@@ -37,13 +39,15 @@ namespace PokeServices.ViewModels
             }
         }
 
-        public PokemonRankViewModel(List<PokemonRankItem> pkmnList, double depth, string parentId, 
+        public PokemonRankViewModel(List<PokemonRankItem> pkmnList, double depth, string parentId,
             string beforeId, string afterId)
             : base(depth)
         {
             _pkmnList = pkmnList;
             ParentId = parentId;
             PkmnPositions = new Dictionary<int, Tuple<int, bool>>();
+
+            Battle = afterId;
 
             Id = parentId.Replace(beforeId, afterId);
             //Id = Regex.Replace(parentId, $"(?<=-|^)({beforeId})(?=$|-)", afterId);
@@ -72,7 +76,7 @@ namespace PokeServices.ViewModels
                 var goalDict = (goalState as PokemonRankViewModel).PkmnPositions;
                 var pokemonToMoveDexNum = _pkmnList[i].DexNumber;
                 var distance = this.PkmnPositions[pokemonToMoveDexNum].Item1 - goalDict[pokemonToMoveDexNum].Item1;
-                if(distance == 0)
+                if (distance == 0)
                 {
                     continue;
                 }
