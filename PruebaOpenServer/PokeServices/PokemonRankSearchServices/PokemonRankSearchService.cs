@@ -21,6 +21,12 @@ namespace PokeServices.PokemonRankSearchServices
         {
             return Task.Run(() =>
             {
+                if(pkmnNames.Count <= 1)
+                {
+                    throw new OperationFailedException("No hay pokémones suficientes para iniciar el torneo. 🤔",
+                            OperationErrorStatus.MalformedInput);
+                }
+
                 var initialState = _factoryService.CreateViewModel(pkmnNames, true);
                 var goalState = _factoryService.CreateViewModel(pkmnNames);
 
@@ -59,7 +65,7 @@ namespace PokeServices.PokemonRankSearchServices
                         }
 
 
-                        // Si la distancia es 0, y el pokémon no puede pelear, 
+                        // Si la distancia es mayor que 0, y el pokémon no puede pelear, 
                         // se penaliza el valor de la heurística por 1000
                         // de lo contrario se retorna la distancia obtenida / 2
                         heuristicValue += Math.Abs(distance) != 0 && !pkDict[key].Item2
