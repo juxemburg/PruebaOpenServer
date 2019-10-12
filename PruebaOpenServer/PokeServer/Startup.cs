@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PokeServices.FactoryServices;
 using PokeServices.PokedexServices;
 using PokeServices.PokemonRankSearchServices;
+using PokeServices.PokemonServices;
 
 namespace PokeServer
 {
@@ -42,6 +43,7 @@ namespace PokeServer
             services.AddSingleton<PokedexProfilerService>();
             services.AddScoped<PokemonRankFactoryService>();
             services.AddScoped<PokemonRankSearchService>();
+            services.AddScoped<PokemonService>();
 
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
