@@ -89,18 +89,17 @@ namespace StateSearchEngine.Services
                     if (_goalState.Id.Equals(_currentCandidate.Id) && 
                         (_resultCandidate == null || _resultCandidate.Score > _currentCandidate.Score))
                     {
-                        _resultCandidate = _currentCandidate;
-                        if(_returnFirstMatch)
-                        {
-                            return shortestPathQueue(_resultCandidate);
-                        }
+                        // Se retorna con el primer candidato, debido a que siempre se evalúa al 
+                        // estado con mejor heurísitca primero y, como el contexto de búsqueda
+                        // no posee máximos locales, se confirma que es el mejor resultado
+                        return shortestPathQueue(_currentCandidate);
                     }
                 }
             };
 
             // Si no encontró match y no existen elementos en cola para ser extendidos
             // no era posible encontrar un estado adecuado.
-            return shortestPathQueue(_resultCandidate);
+            return new Queue<ISearchable<T>>();
         }
 
         private void extendState(ISearchable<T> state)
@@ -111,13 +110,10 @@ namespace StateSearchEngine.Services
                 _discartedQueue.Add(state.Id, state);
             }
 
-            foreach (var item in state.Extend())
+            var children = state.Extend(_heuristicFn, _goalState);
+            foreach (var item in children)
             {
-                item.HeuristicValue = _heuristicFn(item);
-                if(item.HeuristicValue >= 0 &&
-                    item.HeuristicValue < state.HeuristicValue &&
-                    (_resultCandidate == null || 
-                        item.Depth < _resultCandidate.Depth))
+                if(_resultCandidate == null || item.Depth < _resultCandidate.Depth)
                 {
                     _extendQueue.Enqueue(item);
                 }

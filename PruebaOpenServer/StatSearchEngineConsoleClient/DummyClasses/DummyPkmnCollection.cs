@@ -36,7 +36,8 @@ namespace StatSearchEngineConsoleClient.DummyClasses
             }
         }
 
-        public override IEnumerable<ISearchable<string>> Extend()
+        public override IEnumerable<ISearchable<string>> Extend(Func<ISearchable<string>, double> heuristicFn,
+            ISearchable<string> goalState)
         {
             //TODO: Optimizar el proceso de creación de hijitos
             //TODO: revisar si es posible evitar crear hijos cuando 
@@ -53,7 +54,7 @@ namespace StatSearchEngineConsoleClient.DummyClasses
                 var aux = nthClone[i - 1];
                 nthClone[i] = new Tuple<int, string, int>(nthClone[i].Item1, nthClone[i].Item2, nthClone[i].Item3 - 1);
                 nthClone[i - 1] = nthClone[i];
-                nthClone[i] = aux;
+                nthClone[i] = aux;  
                 childs.Add(new DummyPkmnCollection(nthClone, Score + 1, Id));
             }
             return childs;

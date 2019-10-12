@@ -28,9 +28,10 @@ namespace PokeServices.ViewModels
             PkmnPositions = new Dictionary<int, Tuple<int, bool>>();
 
             var pos = 0;
+            Id = "-";
             foreach (var pkmn in _pkmnList)
             {
-                Id += $"-{pkmn.DexNumber}";
+                Id += $"{pkmn.DexNumber}-";
                 PkmnPositions.Add(pkmn.DexNumber, new Tuple<int, bool>(pos, pkmn.CanFight));
                 pos++;
             }
@@ -43,8 +44,9 @@ namespace PokeServices.ViewModels
             _pkmnList = pkmnList;
             ParentId = parentId;
             PkmnPositions = new Dictionary<int, Tuple<int, bool>>();
-            
-            Id = Regex.Replace(parentId, $"(?<=-|^)({beforeId})(?=$|-)", afterId);
+
+            Id = parentId.Replace(beforeId, afterId);
+            //Id = Regex.Replace(parentId, $"(?<=-|^)({beforeId})(?=$|-)", afterId);
             var pos = 0;
             foreach (var pkmn in _pkmnList)
             {
@@ -54,7 +56,8 @@ namespace PokeServices.ViewModels
             }
         }
 
-        public override IEnumerable<ISearchable<string>> Extend()
+        public override IEnumerable<ISearchable<string>> Extend(Func<ISearchable<string>, double> heuristicFn,
+            ISearchable<string> goalState)
         {
             //TODO: Optimizar el proceso de creación de hijitos
             //TODO: revisar si es posible evitar crear hijos cuando 
@@ -66,16 +69,36 @@ namespace PokeServices.ViewModels
                 {
                     continue;
                 }
+                var goalDict = (goalState as PokemonRankViewModel).PkmnPositions;
+                var pokemonToMoveDexNum = _pkmnList[i].DexNumber;
+                var distance = this.PkmnPositions[pokemonToMoveDexNum].Item1 - goalDict[pokemonToMoveDexNum].Item1;
+                if(distance == 0)
+                {
+                    continue;
+                }
 
                 var nthClone = _pkmnList.Select(item => item.Clone()).ToList();
+                //var nthClone = new List<PokemonRankItem>();
+                //for (int j = 0; j < _pkmnList.Count; j++)
+                //{
+                //    nthClone.Add(_pkmnList[j].Clone());
+                //}
 
-                var beforeId = $"{nthClone[i - 1].DexNumber}-{nthClone[i].DexNumber}";
+
+                var beforeId = $"-{nthClone[i - 1].DexNumber}-{nthClone[i].DexNumber}-";
                 var aux = nthClone[i - 1];
                 nthClone[i].Fight();
                 nthClone[i - 1] = nthClone[i];
                 nthClone[i] = aux;
-                var afterId = $"{nthClone[i - 1].DexNumber}-{nthClone[i].DexNumber}";
-                childs.Add(new PokemonRankViewModel(nthClone, Depth + 1, Id));
+                var afterId = $"-{nthClone[i - 1].DexNumber}-{nthClone[i].DexNumber}-";
+
+                var child = new PokemonRankViewModel(nthClone, Depth + 1, Id, beforeId, afterId);
+                child.HeuristicValue = heuristicFn(child);
+
+                if (child.HeuristicValue >= 0 && child.HeuristicValue < HeuristicValue)
+                {
+                    childs.Add(child);
+                }
             }
             return childs;
         }

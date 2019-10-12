@@ -22,7 +22,7 @@ namespace StateSearchEngine.Interfaces
             Depth = depth;
         }
 
-        public abstract IEnumerable<ISearchable<T>> Extend();
+        public abstract IEnumerable<ISearchable<T>> Extend(Func<ISearchable<T>, double> heuristicFn, ISearchable<T> goalState);
 
         public int CompareTo(ISearchable<T> other)
         {
