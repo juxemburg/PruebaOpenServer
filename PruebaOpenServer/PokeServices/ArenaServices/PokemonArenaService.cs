@@ -40,6 +40,18 @@ namespace PokeServices.ArenaServices
             return resource.Id;
         }
 
+        public async Task<int> CreateRandomArenaAsync(int pkmnCount)
+        {
+            var arenaResults = await _rankSearchService.RandomArenaResultsAsync(pkmnCount);
+            var resource = arenaResults.ToEntity();
+            _data.AddResult(resource);
+            var success = await _data.SaveAllAsync();
+            if (!success)
+            {
+                throw new OperationFailedException("Error al insertar el recurso", OperationErrorStatus.DatabaseError);
+            }
+            return resource.Id;
+        }
 
         public async Task<ArenaResultsViewModel> GetArenaResultsAsync(int id)
         {

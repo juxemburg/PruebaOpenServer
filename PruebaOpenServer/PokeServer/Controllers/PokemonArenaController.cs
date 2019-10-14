@@ -28,5 +28,9 @@ namespace PokeServer.Controllers
         [HttpPost]
         public async Task<IActionResult> AddResource([FromBody] List<string> pkmnNames)
             => await this.Post(ModelState, async () => await _arenaService.CreateArenaAsync(pkmnNames));
+
+        [HttpPost("Random")]
+        public async Task<IActionResult> AddResourceRandom([FromBody] int pkmnCount)
+            => await this.Post(ModelState, async () => await _arenaService.CreateRandomArenaAsync(pkmnCount));
     }
 }
