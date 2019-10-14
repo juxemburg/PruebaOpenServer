@@ -1,12 +1,12 @@
 using DAL.Context;
+using DAL.DataAccess;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PokeServices.ArenaServices;
 using PokeServices.FactoryServices;
 using PokeServices.PokedexServices;
 using PokeServices.PokemonRankSearchServices;
@@ -38,12 +38,15 @@ namespace PokeServer
                     builder => builder.WithOrigins("http://localhost:4200")
                     .AllowAnyHeader()
                     .AllowAnyMethod());
-            });
+});
 
+            services.AddScoped<IDataAccess, DataAccess_SQL>();
             services.AddSingleton<PokedexProfilerService>();
             services.AddScoped<PokemonRankFactoryService>();
             services.AddScoped<PokemonRankSearchService>();
             services.AddScoped<PokemonService>();
+            services.AddScoped<PokemonArenaService>();
+            
 
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -58,6 +61,7 @@ namespace PokeServer
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseCors("AllowSpecificOrigin");
             }
             else
             {
@@ -66,9 +70,12 @@ namespace PokeServer
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            DefaultFilesOptions options = new DefaultFilesOptions();
+            options.DefaultFileNames.Clear();
+            options.DefaultFileNames.Add("index.html");
+            app.UseDefaultFiles(options);
+            app.UseDefaultFiles();
             app.UseStaticFiles();
-            app.UseSpaStaticFiles();
 
             app.UseMvc(routes =>
             {
@@ -77,18 +84,7 @@ namespace PokeServer
                     template: "{controller}/{action=Index}/{id?}");
             });
 
-            app.UseSpa(spa =>
-            {
-                // To learn more about options for serving an Angular SPA from ASP.NET Core,
-                // see https://go.microsoft.com/fwlink/?linkid=864501
-
-                spa.Options.SourcePath = "ClientApp";
-
-                if (env.IsDevelopment())
-                {
-                    spa.UseAngularCliServer(npmScript: "start");
-                }
-            });
+            
         }
     }
 }

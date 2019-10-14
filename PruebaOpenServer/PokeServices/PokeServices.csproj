@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DAL\DAL.csproj" />
+    <ProjectReference Include="..\Entities\Entities.csproj" />
     <ProjectReference Include="..\PokeApiNet\PokeApiNet.csproj" />
     <ProjectReference Include="..\StateSearchEngine\StateSearchEngine.csproj" />
   </ItemGroup>

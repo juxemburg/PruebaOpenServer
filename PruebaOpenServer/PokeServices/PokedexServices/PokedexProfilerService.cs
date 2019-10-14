@@ -53,6 +53,16 @@ namespace PokeServices.PokedexServices
             return positionDict;
         }
 
+        public Task<IEnumerable<PokemonShortInfoViewModel>> GetPokemonShortInfoViewModelsAsync()
+            => Task.Run(() => GetPokemonShortInfoViewModels());
+
+        /// <summary>
+        /// Retorna una lista con la descripción corta de todos los pokémon
+        /// </summary>
+        /// <returns>Lista de PokemonShortInfoViewModel</returns>
+        public IEnumerable<PokemonShortInfoViewModel> GetPokemonShortInfoViewModels()
+            => _pokedexNumIndex.Keys.Select(key => getPokemonShortInfo(key));
+
         /// <summary>
         /// Retorna un listado con el resultado de la arena pokemon
         /// </summary>
