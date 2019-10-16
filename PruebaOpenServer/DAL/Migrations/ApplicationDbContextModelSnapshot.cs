@@ -15,29 +15,58 @@ namespace DAL.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.0.0")
+                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+            modelBuilder.Entity("Entities.PokemonBattleRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("ChallengedPokemonId");
+
+                    b.Property<int>("ChallengerPokemonId");
+
+                    b.Property<int>("Order");
+
+                    b.Property<int>("PokemonRankResultId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PokemonRankResultId");
+
+                    b.ToTable("BattleRecords");
+                });
 
             modelBuilder.Entity("Entities.PokemonRankResult", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime>("Date");
 
-                    b.Property<double>("ElapsedMiliseconds")
-                        .HasColumnType("float");
+                    b.Property<double>("ElapsedMiliseconds");
 
-                    b.Property<int>("StepCount")
-                        .HasColumnType("int");
+                    b.Property<string>("FinalStateId");
+
+                    b.Property<string>("InitialStateId");
+
+                    b.Property<int>("StepCount");
 
                     b.HasKey("Id");
 
                     b.ToTable("RankResults");
+                });
+
+            modelBuilder.Entity("Entities.PokemonBattleRecord", b =>
+                {
+                    b.HasOne("Entities.PokemonRankResult", "PokemonRankResult")
+                        .WithMany("BattleRecords")
+                        .HasForeignKey("PokemonRankResultId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

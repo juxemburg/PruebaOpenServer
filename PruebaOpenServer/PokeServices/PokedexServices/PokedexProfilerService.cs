@@ -1,5 +1,6 @@
 ﻿using PokeApiNet;
 using PokeApiNet.Models;
+using PokeServices.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,16 +15,28 @@ namespace PokeServices.PokedexServices
         private Dictionary<string, int> _pokedexNameIndex = new Dictionary<string, int>();
         private Dictionary<int, string> _pokedexNumIndex = new Dictionary<int, string>();
 
-        public PokedexProfilerService()
-        {
-
-        }
+        public PokedexProfilerService() { }
 
         public async Task InitAsync()
         {
+            var gen7 = await _pokeClient.GetResourceAsync<Generation>(7);
+            var species = await _pokeClient.GetResourceAsync(gen7.PokemonSpecies.Select(item => item));
             var pokedex = await _pokeClient.GetResourceAsync<Pokedex>(1);
             _pokedexNameIndex = pokedex.PokemonEntries.ToDictionary(entry => entry.PokemonSpecies.Name, entry => entry.EntryNumber);
             _pokedexNumIndex = pokedex.PokemonEntries.ToDictionary(entry => entry.EntryNumber, entry => entry.PokemonSpecies.Name);
+
+            foreach (var specimen in species)
+            {
+                if(!_pokedexNumIndex.ContainsKey(specimen.Id))
+                {
+                    _pokedexNumIndex.Add(specimen.Id, specimen.Name);
+                }
+
+                if (!_pokedexNameIndex.ContainsKey(specimen.Name))
+                {
+                    _pokedexNameIndex.Add(specimen.Name, specimen.Id);
+                }
+            }
         }
 
         /// <summary>
@@ -38,6 +51,12 @@ namespace PokeServices.PokedexServices
         public Task<List<string>> GetShuffledPokemonListAsync(int pkmnCount = 50)
             => Task.Run(() => GetShuffledPokemonList(pkmnCount));
 
+        /// <summary>
+        /// Retorna una lista con los nombres de pokemon desordenados, 
+        /// para ser usados en una nueva búsqueda
+        /// </summary>
+        /// <param name="pkmnCount"></param>
+        /// <returns></returns>
         public List<string> GetShuffledPokemonList(int pkmnCount = 50)
         {
             var positionDict = Enumerable.Range(1, pkmnCount)
@@ -47,8 +66,63 @@ namespace PokeServices.PokedexServices
 
             positionDict.Shuffle();
             return positionDict;
+        }
+
+        public Task<IEnumerable<PokemonShortInfoViewModel>> GetPokemonShortInfoViewModelsAsync()
+            => Task.Run(() => GetPokemonShortInfoViewModels());
+
+        /// <summary>
+        /// Retorna una lista con la descripción corta de todos los pokémon
+        /// </summary>
+        /// <returns>Lista de PokemonShortInfoViewModel</returns>
+        public IEnumerable<PokemonShortInfoViewModel> GetPokemonShortInfoViewModels()
+            => _pokedexNumIndex.Keys.Select(key => getPokemonShortInfo(key)).OrderBy(p => p.DexNum);
+
+        /// <summary>
+        /// Retorna un listado con el resultado de la arena pokemon
+        /// </summary>
+        /// <param name="fightCount">El número de batallas </param>
+        /// <param name="battleRecords"></param>
+        /// <returns></returns>
+        public ArenaResultsViewModel GetArenaResultsViewModel(double elapsedTime,
+            List<string> battleRecords, string initialStateId, string finalStateId)
+        {
+            return new ArenaResultsViewModel()
+            {
+                InitialArenaPosition = initialStateId.Split("-")
+                    .Where(id => !string.IsNullOrWhiteSpace(id))
+                    .Select(id => getPokemonShortInfo(Convert.ToInt32(id)))
+                    .ToList(),
+                FinalArenaPosition = finalStateId.Split("-")
+                    .Where(id => !string.IsNullOrWhiteSpace(id))
+                    .Select(id => getPokemonShortInfo(Convert.ToInt32(id)))
+                    .ToList(),
+                FightCount = battleRecords.Count - 1,
+                ArenaElapsedTime = elapsedTime,
+                BattleRecords = battleRecords
+                .Where(record => !string.IsNullOrWhiteSpace(record))
+                .Select((record, index) =>
+                {
+                    var idList = record.Split("-").Where(item => !string.IsNullOrWhiteSpace(item));
+                    var challengerId = Convert.ToInt32(idList.ElementAt(0));
+                    var challengedId = Convert.ToInt32(idList.ElementAt(1));
+
+                    return new PokemonArenaBattleViewModel()
+                    {
+                        Order = (battleRecords.Count - 1) - index,
+                        ChallengerPokemon = getPokemonShortInfo(challengerId),
+                        ChallengedPokemon = getPokemonShortInfo(challengedId)
+                    };
+                }).OrderBy(item => item.Order).ToList()
+            };
 
         }
 
+        public PokemonShortInfoViewModel getPokemonShortInfo(int dexNum)
+         => new PokemonShortInfoViewModel()
+         {
+             DexNum = dexNum,
+             Name = _pokedexNumIndex[dexNum]
+         };
     }
 }

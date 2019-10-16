@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -27,10 +25,18 @@ namespace PokeServer.Controllers
         public async Task<IActionResult> GetShuffledPokemonList([FromQuery] int pkmnCount = 50)
             => await this.Get(async () => await _profilerService.GetShuffledPokemonListAsync(pkmnCount));
 
+        [HttpGet("RandomArenaResults")]
+        public async Task<IActionResult> GetRandomArenaResults([FromQuery] int pkmnCount = 50)
+            => await this.Get(async () => await _rankSearchService.RandomArenaResultsAsync(pkmnCount));
+
+        [HttpPost("ArenaResults")]
+        public async Task<IActionResult> ArenaResults([FromBody] List<string> pkmnNames)
+            => await this.Post(ModelState, async () => await _rankSearchService.FullArenaSearchAsync(pkmnNames));
+
         // POST: api/PokemonRankSearch
         [HttpPost]
         public async Task<IActionResult> PkmnRankSearch([FromBody] List<string> pkmnNames)
-            => await this.Post(ModelState, async () => await _rankSearchService.RankSearchAsync(pkmnNames));
+            => await this.Post(ModelState, async () => await _rankSearchService.DefaultArenaSearchAsync(pkmnNames));
 
 
     }

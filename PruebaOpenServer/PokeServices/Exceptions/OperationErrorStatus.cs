@@ -7,6 +7,7 @@ namespace PokeServices.Exceptions
     public enum OperationErrorStatus
     {
         MalformedInput,
-        ResourceNotFound
+        ResourceNotFound,
+        DatabaseError
     }
 }
