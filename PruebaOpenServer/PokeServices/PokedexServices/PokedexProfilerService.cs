@@ -19,9 +19,24 @@ namespace PokeServices.PokedexServices
 
         public async Task InitAsync()
         {
+            var gen7 = await _pokeClient.GetResourceAsync<Generation>(7);
+            var species = await _pokeClient.GetResourceAsync(gen7.PokemonSpecies.Select(item => item));
             var pokedex = await _pokeClient.GetResourceAsync<Pokedex>(1);
             _pokedexNameIndex = pokedex.PokemonEntries.ToDictionary(entry => entry.PokemonSpecies.Name, entry => entry.EntryNumber);
             _pokedexNumIndex = pokedex.PokemonEntries.ToDictionary(entry => entry.EntryNumber, entry => entry.PokemonSpecies.Name);
+
+            foreach (var specimen in species)
+            {
+                if(!_pokedexNumIndex.ContainsKey(specimen.Id))
+                {
+                    _pokedexNumIndex.Add(specimen.Id, specimen.Name);
+                }
+
+                if (!_pokedexNameIndex.ContainsKey(specimen.Name))
+                {
+                    _pokedexNameIndex.Add(specimen.Name, specimen.Id);
+                }
+            }
         }
 
         /// <summary>
@@ -61,7 +76,7 @@ namespace PokeServices.PokedexServices
         /// </summary>
         /// <returns>Lista de PokemonShortInfoViewModel</returns>
         public IEnumerable<PokemonShortInfoViewModel> GetPokemonShortInfoViewModels()
-            => _pokedexNumIndex.Keys.Select(key => getPokemonShortInfo(key));
+            => _pokedexNumIndex.Keys.Select(key => getPokemonShortInfo(key)).OrderBy(p => p.DexNum);
 
         /// <summary>
         /// Retorna un listado con el resultado de la arena pokemon
@@ -103,7 +118,7 @@ namespace PokeServices.PokedexServices
 
         }
 
-        private PokemonShortInfoViewModel getPokemonShortInfo(int dexNum)
+        public PokemonShortInfoViewModel getPokemonShortInfo(int dexNum)
          => new PokemonShortInfoViewModel()
          {
              DexNum = dexNum,

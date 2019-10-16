@@ -45,9 +45,12 @@ namespace PokeServices.ViewModels.MappingExtensions
             => new ArenaResultsShortInfoViewModel()
             {
                 Id = model.Id,
-                Date = model.Date,
+                Date = model.Date.ToLocalTime(),
                 ElapsedMiliseconds = model.ElapsedMiliseconds,
-                StepCount = model.StepCount
+                StepCount = model.StepCount,
+                WinnerId = model.BattleRecords.Count == 0 
+                    ? -1 
+                    : model.BattleRecords.Last().ChallengerPokemonId
             };
     }
 }

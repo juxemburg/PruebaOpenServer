@@ -77,7 +77,13 @@ namespace PokeServices.ArenaServices
                 throw new OperationFailedException("El resultado no existe", OperationErrorStatus.ResourceNotFound);
             }
 
-            return items.Select(model => model.ToViewModel()).ToList();
+            return items.Select(model =>
+            {
+                var viewModel = model.ToViewModel();
+                viewModel.WinnerName = viewModel.WinnerId == -1 ?
+                "" : _profilerService.getPokemonShortInfo(viewModel.WinnerId).Name;
+                return viewModel;
+            }).OrderByDescending(item => item.Date).ToList();
         }
 
     }

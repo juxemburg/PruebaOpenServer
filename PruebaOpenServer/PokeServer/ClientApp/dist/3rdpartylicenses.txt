@@ -59,6 +59,9 @@ MIT
 @angular/core
 MIT
 
+@angular/forms
+MIT
+
 @angular/material
 MIT
 The MIT License
@@ -88,6 +91,9 @@ THE SOFTWARE.
 MIT
 
 @angular/router
+MIT
+
+@angular/service-worker
 MIT
 
 @fortawesome/angular-fontawesome

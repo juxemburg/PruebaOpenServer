@@ -10,5 +10,8 @@ namespace PokeServices.ViewModels
         public DateTime Date { get; set; }
         public double ElapsedMiliseconds { get; set; }
         public int StepCount { get; set; }
+
+        public int WinnerId { get; set; }
+        public string WinnerName { get; set; }
     }
 }
